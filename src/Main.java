@@ -62,6 +62,8 @@ public class Main {
 
             System.out.println("Количество ОС: " + statistics.getOperatingSystemCounter());
             System.out.println("Доля ОС: " + statistics.getOperatingSystemRate());
+            System.out.println("Количество браузеров: " + statistics.getBrowserCounter());
+            System.out.println("Доля браузеров: " + statistics.getBrowserRate());
             System.out.println("Cредний объём трафика сайта за час:" + statistics.getTrafficRate());
             double googleBotPercent = (double) countGoogleBot * 100 / countLines;
             double yandexBotPercent = (double) countYandexBot * 100 / countLines;
