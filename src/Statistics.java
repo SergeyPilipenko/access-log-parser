@@ -1,6 +1,4 @@
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 public class Statistics {
 
@@ -16,7 +14,7 @@ public class Statistics {
 
     public void addEntry(LogEntry logEntry) {
 
-        totalTraffic = logEntry.getResponseSize();
+        totalTraffic += logEntry.getResponseSize();
 
         if (logEntry.getTime().isBefore(minTime)) minTime = logEntry.getTime();
         if (logEntry.getTime().isAfter(maxTime)) maxTime = logEntry.getTime();
