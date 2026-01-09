@@ -32,7 +32,7 @@ public class Main {
             break;
         }
 
-        int countLines = 1;
+        int countLines = 0;
 
         try {
 
@@ -70,7 +70,7 @@ public class Main {
             System.out.printf("Доля запросов YandexBot: %f%n", yandexBotPercent);
 
         } catch (Exception ex) {
-            System.err.println("Ошибка в строке файла " + countLines);
+            System.err.println("Ошибка в строке файла " + countLines+1);
             ex.printStackTrace();
         }
     }
