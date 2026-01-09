@@ -1,25 +1,44 @@
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class Statistics {
 
     private int totalTraffic;
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
+    private HashSet existingPages;
+    private HashMap<String, Integer> operatingSystemCounter;
 
     public Statistics() {
         this.totalTraffic = 0;
         this.minTime = LocalDateTime.MAX;
         this.maxTime = LocalDateTime.MIN;
+        this.existingPages = new HashSet<>();
+        this.operatingSystemCounter = new HashMap<>();
     }
 
     public void addEntry(LogEntry logEntry) {
 
-        totalTraffic = logEntry.getResponseSize();
+        totalTraffic += logEntry.getResponseSize();
 
         if (logEntry.getTime().isBefore(minTime)) minTime = logEntry.getTime();
         if (logEntry.getTime().isAfter(maxTime)) maxTime = logEntry.getTime();
+
+        if (logEntry.getResponseCode() == 200) existingPages.add(logEntry.getPath());
+
+        if (logEntry.getUserAgent() != null && logEntry.getUserAgent().getOperatingSystem() != null) {
+            String os = logEntry.getUserAgent().getOperatingSystem();
+            if (operatingSystemCounter.containsKey(os)){
+                operatingSystemCounter.replace(os, operatingSystemCounter.get(os)+1);
+            } else{
+                operatingSystemCounter.put(os,0);
+            }
+        }
+    }
+
+    public HashSet getExistingPages() {
+        return existingPages;
     }
 
     public double getTrafficRate() {
@@ -27,5 +46,30 @@ public class Statistics {
 
         return (double) totalTraffic / divTimeHours;
 
+    }
+
+    public HashMap<String, Double> getOperatingSystemRate(){
+
+        if (operatingSystemCounter.isEmpty()) return null;
+
+        String[] keys = operatingSystemCounter.keySet().toArray(new String[0]);
+        Integer[] values = operatingSystemCounter.values().toArray(new Integer[0]);
+
+        int osTotalCount = 0;
+        for (int value: values){
+            osTotalCount+=value;
+        }
+
+        HashMap<String,Double> operatingSystemRate = new HashMap<>();
+        for (int i=0; i< keys.length; i++){
+            double part = (double)values[i]/osTotalCount;
+            operatingSystemRate.put(keys[i], Math.round(part * 1000d) / 1000d);
+        }
+
+        return operatingSystemRate;
+    }
+
+    public HashMap<String, Integer> getOperatingSystemCounter() {
+        return operatingSystemCounter;
     }
 }

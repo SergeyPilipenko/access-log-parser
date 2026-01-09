@@ -60,6 +60,8 @@ public class Main {
                 }
             }
 
+            System.out.println("Количество ОС: " + statistics.getOperatingSystemCounter());
+            System.out.println("Доля ОС: " + statistics.getOperatingSystemRate());
             System.out.println("Cредний объём трафика сайта за час:" + statistics.getTrafficRate());
             double googleBotPercent = (double) countGoogleBot * 100 / countLines;
             double yandexBotPercent = (double) countYandexBot * 100 / countLines;
@@ -70,7 +72,7 @@ public class Main {
             System.out.printf("Доля запросов YandexBot: %f%n", yandexBotPercent);
 
         } catch (Exception ex) {
-            System.err.println("Ошибка в строке файла " + countLines+1);
+            System.err.println("Ошибка в строке файла " + countLines + 1);
             ex.printStackTrace();
         }
     }
