@@ -2,12 +2,14 @@ public class UserAgent {
 
     private final String browser;
     private final String operatingSystem;
-    private final String bot;
+    private final String botName;
+    private final boolean isBot;
 
     public UserAgent(String userAgentStr) {
         this.browser = parseBrowser(userAgentStr);
         this.operatingSystem = parseOperatingSystem(userAgentStr);
-        this.bot = parseBot(userAgentStr);
+        this.botName = parseBot(userAgentStr);
+        this.isBot = parseIsBot(userAgentStr);
     }
 
     public String getBrowser() {
@@ -18,8 +20,8 @@ public class UserAgent {
         return operatingSystem;
     }
 
-    public String getBot() {
-        return bot;
+    public String getBotName() {
+        return botName;
     }
 
     @Override
@@ -27,8 +29,12 @@ public class UserAgent {
         return "UserAgent{" +
                 "browser='" + browser + '\'' +
                 ", operatingSystem='" + operatingSystem + '\'' +
-                ", bot='" + bot + '\'' +
+                ", bot='" + botName + '\'' +
                 '}';
+    }
+
+    public boolean isBot(){
+        return isBot;
     }
 
     private String parseBrowser(String userAgentStr) {
@@ -76,5 +82,9 @@ public class UserAgent {
         }
 
         return bot;
+    }
+
+    private boolean parseIsBot(String userAgentStr){
+        return userAgentStr.contains("bot") || userAgentStr.contains("Bot");
     }
 }

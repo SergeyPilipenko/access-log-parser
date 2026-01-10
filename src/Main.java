@@ -52,7 +52,7 @@ public class Main {
                 countLines++;
 
                 if (logEntry.getUserAgent() != null) {
-                    String bot = logEntry.getUserAgent().getBot();
+                    String bot = logEntry.getUserAgent().getBotName();
                     if (bot != null) {
                         if (bot.equals("Googlebot")) countGoogleBot++;
                         if (bot.equals("YandexBot")) countYandexBot++;
@@ -64,7 +64,10 @@ public class Main {
             System.out.println("Доля ОС: " + statistics.getOperatingSystemRate());
             System.out.println("Количество браузеров: " + statistics.getBrowserCounter());
             System.out.println("Доля браузеров: " + statistics.getBrowserRate());
-            System.out.println("Cредний объём трафика сайта за час:" + statistics.getTrafficRate());
+            System.out.println("Cредний объём трафика сайта за час: " + statistics.getTrafficRate());
+            System.out.println("Среднее кол-во реальных юзеров/час:"+statistics.getAvgRealUsersVisitsPerHour());
+            System.out.println("Среднее кол-во ошибочных запросв/час: "+ statistics.getAvgErrorRequestsPerHour());
+            System.out.println("Средняя помещаемость юзером: "+ statistics.getAvgVisitsPerRealUser());
             double googleBotPercent = (double) countGoogleBot * 100 / countLines;
             double yandexBotPercent = (double) countYandexBot * 100 / countLines;
             System.out.printf("Общее количество строк: %s%n", countLines);

@@ -11,6 +11,9 @@ public class Statistics {
     private HashSet notExistingPages;
     private HashMap<String, Integer> operatingSystemCounter;
     private HashMap<String, Integer> browserCounter;
+    private int realUsersCounter;
+    private int errorRequestsCounter;
+    private final HashSet<String> uniqueUsersIp;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -20,6 +23,10 @@ public class Statistics {
         this.notExistingPages = new HashSet();
         this.operatingSystemCounter = new HashMap<>();
         this.browserCounter = new HashMap<>();
+        this.realUsersCounter = 0;
+        this.errorRequestsCounter = 0;
+        this.uniqueUsersIp = new HashSet<>();
+
     }
 
     public void addEntry(LogEntry logEntry) {
@@ -31,6 +38,8 @@ public class Statistics {
 
         if (logEntry.getResponseCode() == 200) existingPages.add(logEntry.getPath());
         if (logEntry.getResponseCode() == 404) notExistingPages.add(logEntry.getPath());
+        // Считаем кол-во ошибочных запросов
+        if (logEntry.getResponseCode() >=400) errorRequestsCounter++;
 
         if (logEntry.getUserAgent() != null) {
             if (logEntry.getUserAgent().getOperatingSystem() != null) {
@@ -49,6 +58,12 @@ public class Statistics {
                 } else {
                     browserCounter.put(browser, 0);
                 }
+            }
+
+            // Считаем количество реальных пользователей и кол-во уникальных пользователей
+            if (!logEntry.getUserAgent().isBot()){
+                realUsersCounter++;
+                uniqueUsersIp.add(logEntry.getIpAddr());
             }
         }
     }
@@ -74,6 +89,25 @@ public class Statistics {
 
         return (double) totalTraffic / divTimeHours;
 
+    }
+
+    public double getAvgRealUsersVisitsPerHour() {
+        int divTimeHours = maxTime.getHour() - minTime.getHour();
+
+        return (double) realUsersCounter / divTimeHours;
+    }
+
+    public double getAvgVisitsPerRealUser() {
+        if (uniqueUsersIp.isEmpty()) {
+            return 0.0;
+        }
+        return (double) realUsersCounter / uniqueUsersIp.size();
+    }
+
+    public double getAvgErrorRequestsPerHour() {
+        int divTimeHours = maxTime.getHour() - minTime.getHour();
+
+        return (double) divTimeHours / errorRequestsCounter;
     }
 
     public HashMap<String, Double> getOperatingSystemRate() {
