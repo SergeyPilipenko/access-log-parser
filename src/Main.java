@@ -65,9 +65,12 @@ public class Main {
             System.out.println("Количество браузеров: " + statistics.getBrowserCounter());
             System.out.println("Доля браузеров: " + statistics.getBrowserRate());
             System.out.println("Cредний объём трафика сайта за час: " + statistics.getTrafficRate());
-            System.out.println("Среднее кол-во реальных юзеров/час:"+statistics.getAvgRealUsersVisitsPerHour());
-            System.out.println("Среднее кол-во ошибочных запросв/час: "+ statistics.getAvgErrorRequestsPerHour());
-            System.out.println("Средняя помещаемость юзером: "+ statistics.getAvgVisitsPerRealUser());
+            System.out.println("Среднее кол-во реальных юзеров/час:" + statistics.getAvgRealUsersVisitsPerHour());
+            System.out.println("Среднее кол-во ошибочных запросв/час: " + statistics.getAvgErrorRequestsPerHour());
+            System.out.println("Средняя помещаемость юзером: " + statistics.getAvgVisitsPerRealUser());
+            System.out.println("Максимальная посещаемость юзером: " + statistics.getMaxVisitsPerRealUser());
+            System.out.println("Список доменов referer: " + statistics.getRefererDomainList());
+            System.out.println("Нагрузка на каждую секунду: " + statistics.getUsersVisitsPerSecondCounter());
             double googleBotPercent = (double) countGoogleBot * 100 / countLines;
             double yandexBotPercent = (double) countYandexBot * 100 / countLines;
             System.out.printf("Общее количество строк: %s%n", countLines);

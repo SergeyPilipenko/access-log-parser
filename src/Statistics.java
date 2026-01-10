@@ -1,6 +1,10 @@
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Statistics {
 
@@ -13,7 +17,9 @@ public class Statistics {
     private HashMap<String, Integer> browserCounter;
     private int realUsersCounter;
     private int errorRequestsCounter;
-    private final HashSet<String> uniqueUsersIp;
+    private HashMap<String, Integer> uniqueUsersIp;
+    private HashSet refererDomainList;
+    private  HashMap<LocalDateTime, Integer> usersVisitsPerSecondCounter;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -25,7 +31,9 @@ public class Statistics {
         this.browserCounter = new HashMap<>();
         this.realUsersCounter = 0;
         this.errorRequestsCounter = 0;
-        this.uniqueUsersIp = new HashSet<>();
+        this.uniqueUsersIp = new HashMap<>();
+        this.refererDomainList = new HashSet<>();
+        this.usersVisitsPerSecondCounter = new HashMap<>();
 
     }
 
@@ -39,7 +47,12 @@ public class Statistics {
         if (logEntry.getResponseCode() == 200) existingPages.add(logEntry.getPath());
         if (logEntry.getResponseCode() == 404) notExistingPages.add(logEntry.getPath());
         // Считаем кол-во ошибочных запросов
-        if (logEntry.getResponseCode() >=400) errorRequestsCounter++;
+        if (logEntry.getResponseCode() >= 400) errorRequestsCounter++;
+
+        //Список доменов Referer
+        if (logEntry.getReferer() != null) {
+            refererDomainList.add(parseDomainReferer(logEntry.getReferer()));
+        }
 
         if (logEntry.getUserAgent() != null) {
             if (logEntry.getUserAgent().getOperatingSystem() != null) {
@@ -47,7 +60,7 @@ public class Statistics {
                 if (operatingSystemCounter.containsKey(os)) {
                     operatingSystemCounter.replace(os, operatingSystemCounter.get(os) + 1);
                 } else {
-                    operatingSystemCounter.put(os, 0);
+                    operatingSystemCounter.put(os, 1);
                 }
             }
 
@@ -56,16 +69,36 @@ public class Statistics {
                 if (browserCounter.containsKey(browser)) {
                     browserCounter.replace(browser, browserCounter.get(browser) + 1);
                 } else {
-                    browserCounter.put(browser, 0);
+                    browserCounter.put(browser, 1);
                 }
             }
 
             // Считаем количество реальных пользователей и кол-во уникальных пользователей
-            if (!logEntry.getUserAgent().isBot()){
+            if (!logEntry.getUserAgent().isBot()) {
                 realUsersCounter++;
-                uniqueUsersIp.add(logEntry.getIpAddr());
+                String uniqueUserIp = logEntry.getIpAddr();
+                if (uniqueUsersIp.containsKey(uniqueUserIp)) {
+                    uniqueUsersIp.replace(uniqueUserIp, uniqueUsersIp.get(uniqueUserIp) + 1);
+                } else {
+                    uniqueUsersIp.put(uniqueUserIp, 1);
+                }
             }
+
+            //Считаем нагрузку на каждую секунду времени
+            if (!logEntry.getUserAgent().isBot()) {
+                LocalDateTime ldm = logEntry.getTime();
+                if (usersVisitsPerSecondCounter.containsKey(ldm)){
+                    usersVisitsPerSecondCounter.replace(ldm,usersVisitsPerSecondCounter.get(ldm)+1);
+                } else{
+                    usersVisitsPerSecondCounter.put(ldm,1);
+                }
+            }
+
         }
+    }
+
+    public HashSet getRefererDomainList() {
+        return refererDomainList;
     }
 
     public HashSet getExistingPages() {
@@ -74,6 +107,10 @@ public class Statistics {
 
     public HashSet getNotExistingPages() {
         return notExistingPages;
+    }
+
+    public HashMap<LocalDateTime, Integer> getUsersVisitsPerSecondCounter() {
+        return usersVisitsPerSecondCounter;
     }
 
     public HashMap<String, Integer> getOperatingSystemCounter() {
@@ -102,6 +139,13 @@ public class Statistics {
             return 0.0;
         }
         return (double) realUsersCounter / uniqueUsersIp.size();
+    }
+
+    //Максимальное количество посещений одним юзером
+    public Map.Entry<String, Integer> getMaxVisitsPerRealUser() {
+        if (uniqueUsersIp.isEmpty()) return null;
+
+        return Collections.max(uniqueUsersIp.entrySet(), Map.Entry.comparingByValue());
     }
 
     public double getAvgErrorRequestsPerHour() {
@@ -152,4 +196,12 @@ public class Statistics {
         return browserRate;
     }
 
+    private String parseDomainReferer(String referer) {
+        try {
+            URI uri = new URI(referer);
+            return uri.getHost();
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
 }
